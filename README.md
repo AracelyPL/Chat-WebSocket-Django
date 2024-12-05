@@ -17,12 +17,19 @@ El proyecto a continuación, fue hecho con django, websocket.
 Los archivos a modificar son los siguientes:
 
 urls.py
+
 settings.py
+
 asgi.py
+
 views.py
+
 routing.py
+
 consumers.py
+
 models.py
+
 chat.html
 
 En caso de que no exista alguno de estos archivos, pueden crearlo.
