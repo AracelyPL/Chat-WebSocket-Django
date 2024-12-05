@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <title>Chat WebSocket</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e6f7ff; /* Fondo azul claro */
+            color: #004080; /* Texto en azul oscuro */
+            margin: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #004080; /* Azul oscuro */
+        }
+        #chat-box {
+            border: 2px solid #004080;
+            padding: 10px;
+            width: 600px; /* Ancho ajustado */
+            height: 500px;
+            overflow-y: scroll;
+            margin: 20px auto;
+            background-color: #ffffff; /* Fondo blanco */
+        }
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+        .message.sent {
+            border: 2px solid #b3d9ff; /* Contorno azul claro */
+            background-color: #e6f7ff; /* Fondo azul claro */
+            margin-left: auto;
+            text-align: right;
+        }
+        .message.received {
+            border: 2px solid #004080; /* Contorno azul oscuro */
+            background-color: #cce6ff; /* Fondo azul claro más oscuro */
+            margin-right: auto;
+            text-align: left;
+        }
+        .user {
+            font-weight: bold;
+            padding-bottom: 5px;
+        }
+        .text {
+            margin-top: 5px;
+            color: #333333;
+        }
+        .user.sent {
+            color: #007bff; /* Color para nombres de usuarios que envían el mensaje */
+        }
+        .user.received {
+            color: #004080; /* Color para nombres de usuarios que reciben el mensaje */
+        }
+        input {
+            width: 240px;
+            padding: 8px;
+            margin: 10px 5px;
+            border: 1px solid #004080;
+            border-radius: 4px;
+        }
+        button {
+            padding: 8px 12px;
+            background-color: #004080; /* Azul oscuro */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #003060; /* Azul más oscuro */
+        }
+    </style>
+</head>
+<body>
+    <h1>Chat WebSocket</h1>
+    <div id="chat-box"></div>
+    <input type="text" id="user" placeholder="Your name">
+    <input type="text" id="message" placeholder="Type a message">
+    <button onclick="sendMessage()">Enviar</button>
+
+    <script>
+        const chatSocket = new WebSocket('ws://' + window.location.host + '/ws/chat/');
+        const currentUser = document.getElementById('user');
+
+        chatSocket.onmessage = function(e) {
+            console.log(e.data);
+            const data = JSON.parse(e.data);
+            const chatBox = document.getElementById('chat-box');
+            
+            // Verifica si el mensaje es del usuario actual o recibido
+            const messageClass = data.user === currentUser.value ? 'sent' : 'received';
+            const userClass = data.user === currentUser.value ? 'sent' : 'received';
+
+            chatBox.innerHTML += `
+                <div class="message ${messageClass}">
+                    <div class="user ${userClass}">${data.user}</div>
+                    <div class="text">${data.message}</div>
+                </div>
+            `;
+            chatBox.scrollTop = chatBox.scrollHeight; // Desplaza hacia abajo automáticamente
+        };
+
+        function sendMessage() {
+            const user = document.getElementById('user').value;
+            const message = document.getElementById('message').value;
+
+            if (user && message) {
+                chatSocket.send(JSON.stringify({ 'user': user, 'message': message }));
+                document.getElementById('message').value = '';
+            }
+        }
+    </script>
+</body>
+</html>
